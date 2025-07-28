@@ -12,55 +12,49 @@
 
   <!-- Fluent UI CSS -->
   <link rel="stylesheet" href="https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/office-ui-fabric-core/11.1.0/css/fabric.min.css" />
-
-  <!-- Custom Styles -->
   <link href="taskpane.css" rel="stylesheet" />
 </head>
 
-<body class="ms-font-m ms-Fabric ms-welcome">
-  <header class="ms-welcome__header ms-bgColor-neutralLighter">
-    <img width="90" height="90" src="../../assets/logo-filled.png" alt="Logo" />
-    <h1 class="ms-font-su">Vendor Manager</h1>
-  </header>
+<body class="ms-font-m ms-Fabric">
 
   <!-- Message shown before sideload -->
-  <section id="sideload-msg" class="ms-welcome__main">
+  <section id="sideload-msg" class="center-section">
     <h2 class="ms-font-xl">
       Please <a target="_blank" href="https://learn.microsoft.com/office/dev/add-ins/testing/test-debug-office-add-ins#sideload-an-office-add-in-for-testing">sideload</a> your add-in to see the app.
     </h2>
   </section>
 
   <!-- Main App Body -->
-  <main id="app-body" class="ms-welcome__main" style="display: none;">
-    <button id="logoutBtn" class="ms-Button ms-Button--primary" style="margin-bottom: 1.5rem;">
-      <span class="ms-Button-label">Logout</span>
-    </button>
+  <main id="app-body" style="display: none;">
+    <div class="container">
+      <div class="header">
+        <h2 class="ms-font-xxl">Vendor Management</h2>
+        <button id="logoutBtn" class="ms-Button ms-Button--primary logout-btn">
+          <span class="ms-Button-label">Logout</span>
+        </button>
+      </div>
 
-    <h2 class="ms-font-xl">Welcome to Vendor Manager Add-in</h2>
+      <div class="form-section">
+        <input id="vendorName" type="text" placeholder="Vendor Name" class="ms-TextField-field" />
+        <select id="paymentType" class="ms-Dropdown">
+          <option value="Weekly">Weekly</option>
+          <option value="Biweekly">Biweekly</option>
+          <option value="On-Demand">On-Demand</option>
+        </select>
+        <select id="account" class="ms-Dropdown">
+          <option value="1">Account 1</option>
+          <option value="2">Account 2</option>
+        </select>
+        <button id="addVendorBtn" class="ms-Button ms-Button--primary add-btn">
+          <span class="ms-Button-label">Add Vendor</span>
+        </button>
+      </div>
 
-    <ul class="ms-List ms-welcome__features">
-      <li class="ms-ListItem">
-        <i class="ms-Icon ms-Icon--Ribbon ms-font-xl"></i>
-        <span class="ms-font-m">Automate vendor payments in Excel</span>
-      </li>
-      <li class="ms-ListItem">
-        <i class="ms-Icon ms-Icon--Unlock ms-font-xl"></i>
-        <span class="ms-font-m">Track account balances</span>
-      </li>
-      <li class="ms-ListItem">
-        <i class="ms-Icon ms-Icon--Design ms-font-xl"></i>
-        <span class="ms-font-m">Generate detailed payment reports</span>
-      </li>
-    </ul>
-
-    <p class="ms-font-l">Click the button below to highlight the selected Excel cell:</p>
-
-    <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
-      <span class="ms-Button-label">Run</span>
+      <h3 class="ms-font-l">Vendor List</h3>
+      <ul id="vendorList" class="ms-List vendor-list"></ul>
     </div>
-
-    <p><label id="item-subject"></label></p>
   </main>
+
 </body>
 
 </html>
