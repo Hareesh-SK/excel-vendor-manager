@@ -70,7 +70,7 @@ function addVendor() {
   const account = parseInt((document.getElementById("account") as HTMLSelectElement).value);
 
   if (!name) {
-    alert("Vendor name is required");
+    showMessage("Vendor name is required");
     return;
   }
 
@@ -119,7 +119,7 @@ let vendorToEditIndex = -1;
 function editVendor(name: string) {
   const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
   const index = vendors.findIndex(v => v.name === name);
-  if (index === -1) return alert("Vendor not found");
+  if (index === -1) return showMessage("Vendor not found");
 
   const vendor = vendors[index];
   vendorToEditIndex = index;
@@ -141,7 +141,7 @@ function saveEditedVendor() {
   const account = parseInt((document.getElementById("accountInput") as HTMLInputElement).value || "0");
 
   if (!name || !paymentType || !account) {
-    alert("Please fill all fields");
+    showMessage("Please fill all fields");
     return;
   }
 
@@ -259,8 +259,6 @@ function triggerOnDemandPayment() {
     if (errorDiv) {
     errorDiv.textContent = "";
   }
-  const confirmPay = confirm("Are you sure you want to pay all On-Demand vendors now?");
-  if (!confirmPay) return;
 
   onDemandVendors.forEach(vendor => {
     const success = deductFromAccount(vendor.account, BASE_PAYMENT);
@@ -290,11 +288,21 @@ function displayPendingPayments() {
   });
 }
 
+function showMessage(message: string, duration: number = 4000) {
+  const bar = document.getElementById("notificationBar")!;
+  bar.textContent = message;
+  bar.style.display = "block";
+
+  setTimeout(() => {
+    bar.style.display = "none";
+  }, duration);
+}
+
 function generateStatement() {
   const history: Payment[] = JSON.parse(localStorage.getItem(PAYMENT_HISTORY_KEY) || "[]");
 
   if (history.length === 0) {
-    alert("No payments to generate.");
+    showMessage("No payments to generate.");
     return;
   }
 
@@ -309,9 +317,9 @@ function generateStatement() {
     sheet.getRange("G2").values = [[accountBalances[2]]];
 
     await context.sync();
-    alert("Statement generated in Excel.");
+    showMessage("Statement generated in Excel.");
   }).catch((err) => {
     console.error(err);
-    alert("Error generating statement: " + err);
+    showMessage("Error generating statement: " + err);
   });
 }
