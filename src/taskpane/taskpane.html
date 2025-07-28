@@ -34,6 +34,13 @@
         </button>
       </div>
 
+      <!-- 🏦 Account Balance Info -->
+      <div class="account-balances" style="margin-bottom: 16px;">
+        <strong>Account Balances:</strong><br>
+        <span id="account1-balance">Account 1: $200,000</span><br>
+        <span id="account2-balance">Account 2: $200,000</span>
+      </div>
+
       <div class="form-section">
         <input id="vendorName" type="text" placeholder="Vendor Name" class="ms-TextField-field" />
         <select id="paymentType" class="ms-Dropdown">
@@ -52,6 +59,32 @@
 
       <h3 class="ms-font-l">Vendor List</h3>
       <ul id="vendorList" class="ms-List vendor-list"></ul>
+
+      <!-- 🚀 Action Buttons -->
+      <div class="action-buttons" style="margin-top: 20px;">
+        <button id="runScheduledPaymentsBtn" class="ms-Button ms-Button--primary">
+          <span class="ms-Button-label">Run Scheduled Payments</span>
+        </button>
+        <button id="payNowBtn" class="ms-Button ms-Button--primary">
+          <span class="ms-Button-label">Pay Now (On-Demand)</span>
+        </button>
+      </div>
+
+      <!-- 📜 Payment History -->
+      <div class="payment-history-section" style="margin-top: 20px;">
+        <h3 class="ms-font-l">Payment History</h3>
+        <ul id="paymentHistoryList" class="ms-List"></ul>
+        <button id="exportBtn" class="ms-Button ms-Button--default">
+          <span class="ms-Button-label">Export to Excel</span>
+        </button>
+      </div>
+
+      <!-- ⏳ Pending Payments -->
+      <div class="pending-section" style="margin-top: 20px;">
+        <h3 class="ms-font-l">Pending Payments</h3>
+        <ul id="pendingPaymentsList" class="ms-List"></ul>
+      </div>
+
     </div>
   </main>
 
