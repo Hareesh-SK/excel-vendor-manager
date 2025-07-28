@@ -245,13 +245,20 @@ function runScheduledPayments() {
 }
 
 function triggerOnDemandPayment() {
+
   const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
   const onDemandVendors = vendors.filter(v => v.paymentType === "On-Demand");
+  const errorDiv = document.getElementById("errorMessage");
   if (onDemandVendors.length === 0) {
-    alert("No On-Demand vendors found.");
+       if (errorDiv) {
+      errorDiv.textContent = "No On-Demand vendors found.";
+    }
     return;
   }
-
+ 
+    if (errorDiv) {
+    errorDiv.textContent = "";
+  }
   const confirmPay = confirm("Are you sure you want to pay all On-Demand vendors now?");
   if (!confirmPay) return;
 
