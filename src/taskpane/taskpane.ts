@@ -1,30 +1,34 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
+/* global Excel, Office, document, window */
 
-/* global console, document, Excel, Office */
-
+// Make sure Office is ready before accessing the DOM or Excel APIs
 Office.onReady((info) => {
   if (info.host === Office.HostType.Excel) {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+      window.location.href = "login.html";
+      return;
+    }
+
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
+
+    // Assign functions to window so they're available in HTML onclick
+    (window as any).run = run;
+    (window as any).logout = logout;
+
     document.getElementById("run").onclick = run;
+    document.getElementById("logoutBtn").onclick = logout;
   }
 });
 
-export async function run() {
+// Excel logic when "Run" button is clicked
+async function run() {
   try {
     await Excel.run(async (context) => {
-      /**
-       * Insert your Excel code here
-       */
       const range = context.workbook.getSelectedRange();
 
-      // Read the range address
+      // Load address and modify the fill color
       range.load("address");
-
-      // Update the fill color
       range.format.fill.color = "yellow";
 
       await context.sync();
@@ -33,4 +37,10 @@ export async function run() {
   } catch (error) {
     console.error(error);
   }
+}
+
+// Logout function
+function logout() {
+  localStorage.removeItem("isLoggedIn");
+  window.location.href = "login.html";
 }

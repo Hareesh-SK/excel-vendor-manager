@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/office-ui-fabric-core/11.1.0/css/fabric.min.css"/>
+  <link href="taskpane.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="ms-font-m ms-welcome ms-Fabric" style="padding: 2rem;">
+  <h2 class="ms-font-xl">Vendor Manager Login</h2>
+  <div>
+    <input type="text" id="username" placeholder="Enter username" class="ms-TextField-field">
+    <br><br>
+    <input type="password" id="password" placeholder="Enter password" class="ms-TextField-field">
+    <br><br>
+    <button id="loginBtn" class="ms-Button ms-Button--primary">
+      <span class="ms-Button-label">Login</span>
+    </button>
+    <p id="login-error" style="color: red;"></p>
+  </div>
+</body>
+<script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script>
+  Office.onReady(() => {
+    document.getElementById("loginBtn").onclick = () => {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      if (username === "admin" && password === "admin123") {
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "taskpane.html";
+      } else {
+        document.getElementById("login-error").innerText = "Invalid credentials!";
+      }
+    };
+  });
+</script>
+</html>
