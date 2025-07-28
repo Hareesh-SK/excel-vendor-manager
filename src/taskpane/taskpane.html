@@ -41,6 +41,7 @@
         <span id="account2-balance">Account 2: $200,000</span>
       </div>
 
+      <!-- ➕ Add Vendor -->
       <div class="form-section">
         <input id="vendorName" type="text" placeholder="Vendor Name" class="ms-TextField-field" />
         <select id="paymentType" class="ms-Dropdown">
@@ -57,6 +58,7 @@
         </button>
       </div>
 
+      <!-- 📋 Vendor List with Edit/Delete -->
       <h3 class="ms-font-l">Vendor List</h3>
       <ul id="vendorList" class="ms-List vendor-list"></ul>
 
@@ -84,6 +86,15 @@
         <h3 class="ms-font-l">Pending Payments</h3>
         <ul id="pendingPaymentsList" class="ms-List"></ul>
       </div>
+
+      <!-- ✏️ Edit Vendor Modal -->
+     <div id="editVendorModal" style="display:none;">
+  <input id="vendorNameInput" placeholder="Vendor Name" />
+  <input id="paymentTypeInput" placeholder="Payment Type (Weekly, Biweekly, On-Demand)" />
+  <input id="accountInput" placeholder="Account (1 or 2)" type="number" />
+  <button onclick="saveEditedVendor()">Save</button>
+</div>
+
 
     </div>
   </main>

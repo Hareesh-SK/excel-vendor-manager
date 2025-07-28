@@ -4,6 +4,8 @@ type Vendor = {
   name: string;
   paymentType: string;
   account: number;
+  skipNextPayment?: boolean;
+  lastPaid?: string;
 };
 
 type Payment = {
@@ -30,6 +32,8 @@ let accountBalances = {
   1: 200000,
   2: 200000,
 };
+
+let selectedVendorName = "";
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Excel) {
@@ -70,7 +74,7 @@ function addVendor() {
     return;
   }
 
-  const vendor: Vendor = { name, paymentType, account };
+  const vendor: Vendor = { name, paymentType, account, skipNextPayment: false };
   const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
   vendors.push(vendor);
   localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
@@ -90,11 +94,15 @@ function loadVendors() {
     li.className = "ms-ListItem";
     li.innerHTML = `
       ${vendor.name} - ${vendor.paymentType} - Account ${vendor.account}
-      <button class="ms-Button ms-Button--small" data-index="${index}">
+      <button class="ms-Button ms-Button--small delete-btn">
         <span class="ms-Button-label">Delete</span>
       </button>
+      <button class="ms-Button ms-Button--small edit-btn">Edit</button>
     `;
-    li.querySelector("button")!.onclick = () => deleteVendor(index);
+
+    li.querySelector(".delete-btn")!.addEventListener("click", () => deleteVendor(index));
+    li.querySelector(".edit-btn")!.addEventListener("click", () => editVendor(vendor.name));
+
     vendorList.appendChild(li);
   });
 }
@@ -105,6 +113,58 @@ function deleteVendor(index: number) {
   localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
   loadVendors();
 }
+
+let vendorToEditIndex = -1;
+
+function editVendor(name: string) {
+  const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
+  const index = vendors.findIndex(v => v.name === name);
+  if (index === -1) return alert("Vendor not found");
+
+  const vendor = vendors[index];
+  vendorToEditIndex = index;
+
+  // Set values into the form
+  (document.getElementById("vendorNameInput") as HTMLInputElement).value = vendor.name;
+  (document.getElementById("paymentTypeInput") as HTMLInputElement).value = vendor.paymentType;
+  (document.getElementById("accountInput") as HTMLInputElement).value = vendor.account.toString();
+
+  document.getElementById("editVendorModal")!.style.display = "block";
+}
+
+
+function saveEditedVendor() {
+  const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
+
+  const name = (document.getElementById("vendorNameInput") as HTMLInputElement).value;
+  const paymentType = (document.getElementById("paymentTypeInput") as HTMLInputElement).value;
+  const account = parseInt((document.getElementById("accountInput") as HTMLInputElement).value || "0");
+
+  if (!name || !paymentType || !account) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  const vendor = vendors[vendorToEditIndex];
+  vendor.name = name;
+  vendor.paymentType = paymentType;
+  vendor.account = account;
+
+  localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
+  loadVendors();
+
+  document.getElementById("editVendorModal")!.style.display = "none";
+}
+
+
+function closeEditModal() {
+  (document.getElementById("editVendorModal") as HTMLDivElement).style.display = "none";
+}
+
+(window as any).editVendor = editVendor;
+(window as any).saveEditedVendor = saveEditedVendor;
+(window as any).closeEditModal = closeEditModal;
+
 
 function loadBalances() {
   const saved = localStorage.getItem(BALANCE_KEY);
@@ -147,22 +207,39 @@ function loadPaymentHistory() {
   });
 }
 
+function isAlternateFriday(lastPaid?: string): boolean {
+  const today = new Date();
+  if (today.getDay() !== 5) return false;
+  if (!lastPaid) return true;
+  const last = new Date(lastPaid);
+  const diffDays = Math.floor((today.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays >= 14;
+}
+
 function runScheduledPayments() {
   const vendors: Vendor[] = JSON.parse(localStorage.getItem(VENDOR_KEY) || "[]");
   const today = new Date();
   const pending: PendingPayment[] = JSON.parse(localStorage.getItem(PENDING_PAYMENTS_KEY) || "[]");
 
   vendors.forEach(vendor => {
-    if (vendor.paymentType === "Weekly" || vendor.paymentType === "Biweekly") {
+    if ((vendor.paymentType === "Weekly" && today.getDay() === 5) ||
+        (vendor.paymentType === "Biweekly" && isAlternateFriday(vendor.lastPaid))) {
+      if (vendor.skipNextPayment) {
+        vendor.skipNextPayment = false;
+        return;
+      }
+
       const success = deductFromAccount(vendor.account, BASE_PAYMENT);
       if (success) {
         logPayment(vendor.name, BASE_PAYMENT, vendor.account);
+        vendor.lastPaid = new Date().toISOString();
       } else {
         pending.push({ vendorName: vendor.name, amount: BASE_PAYMENT, account: vendor.account, date: today.toISOString() });
       }
     }
   });
 
+  localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
   localStorage.setItem(PENDING_PAYMENTS_KEY, JSON.stringify(pending));
   displayPendingPayments();
 }
@@ -175,10 +252,14 @@ function triggerOnDemandPayment() {
     return;
   }
 
+  const confirmPay = confirm("Are you sure you want to pay all On-Demand vendors now?");
+  if (!confirmPay) return;
+
   onDemandVendors.forEach(vendor => {
     const success = deductFromAccount(vendor.account, BASE_PAYMENT);
     if (success) {
       logPayment(vendor.name, BASE_PAYMENT, vendor.account);
+      vendor.skipNextPayment = true;
     } else {
       const pending: PendingPayment[] = JSON.parse(localStorage.getItem(PENDING_PAYMENTS_KEY) || "[]");
       pending.push({ vendorName: vendor.name, amount: BASE_PAYMENT, account: vendor.account, date: new Date().toISOString() });
@@ -186,6 +267,7 @@ function triggerOnDemandPayment() {
     }
   });
 
+  localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
   displayPendingPayments();
 }
 
